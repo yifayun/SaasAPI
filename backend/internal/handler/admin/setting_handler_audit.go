@@ -287,6 +287,18 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.HomeContent != after.HomeContent {
 		changed = append(changed, "home_content")
 	}
+	if before.FooterIcpNumber != after.FooterIcpNumber {
+		changed = append(changed, "footer_icp_number")
+	}
+	if before.FooterIcpURL != after.FooterIcpURL {
+		changed = append(changed, "footer_icp_url")
+	}
+	if before.FooterPsbNumber != after.FooterPsbNumber {
+		changed = append(changed, "footer_psb_number")
+	}
+	if before.FooterPsbURL != after.FooterPsbURL {
+		changed = append(changed, "footer_psb_url")
+	}
 	if before.HideCcsImportButton != after.HideCcsImportButton {
 		changed = append(changed, "hide_ccs_import_button")
 	}

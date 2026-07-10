@@ -134,6 +134,10 @@ type UpdateSettingsRequest struct {
 	ContactInfo                 string                `json:"contact_info"`
 	DocURL                      string                `json:"doc_url"`
 	HomeContent                 string                `json:"home_content"`
+	FooterIcpNumber             string                `json:"footer_icp_number"`
+	FooterIcpURL                string                `json:"footer_icp_url"`
+	FooterPsbNumber             string                `json:"footer_psb_number"`
+	FooterPsbURL                string                `json:"footer_psb_url"`
 	HideCcsImportButton         bool                  `json:"hide_ccs_import_button"`
 	PurchaseSubscriptionEnabled *bool                 `json:"purchase_subscription_enabled"`
 	PurchaseSubscriptionURL     *string               `json:"purchase_subscription_url"`
@@ -1266,6 +1270,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		ContactInfo:                            req.ContactInfo,
 		DocURL:                                 req.DocURL,
 		HomeContent:                            req.HomeContent,
+		FooterIcpNumber:                        req.FooterIcpNumber,
+		FooterIcpURL:                           req.FooterIcpURL,
+		FooterPsbNumber:                        req.FooterPsbNumber,
+		FooterPsbURL:                           req.FooterPsbURL,
 		HideCcsImportButton:                    req.HideCcsImportButton,
 		PurchaseSubscriptionEnabled:            purchaseEnabled,
 		PurchaseSubscriptionURL:                purchaseURL,
@@ -1773,6 +1781,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		ContactInfo:                                            updatedSettings.ContactInfo,
 		DocURL:                                                 updatedSettings.DocURL,
 		HomeContent:                                            updatedSettings.HomeContent,
+		FooterIcpNumber:                                        updatedSettings.FooterIcpNumber,
+		FooterIcpURL:                                           updatedSettings.FooterIcpURL,
+		FooterPsbNumber:                                        updatedSettings.FooterPsbNumber,
+		FooterPsbURL:                                           updatedSettings.FooterPsbURL,
 		HideCcsImportButton:                                    updatedSettings.HideCcsImportButton,
 		PurchaseSubscriptionEnabled:                            updatedSettings.PurchaseSubscriptionEnabled,
 		PurchaseSubscriptionURL:                                updatedSettings.PurchaseSubscriptionURL,

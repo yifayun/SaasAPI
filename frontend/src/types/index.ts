@@ -209,6 +209,10 @@ export interface PublicSettings {
   contact_info: string
   doc_url: string
   home_content: string
+  footer_icp_number: string
+  footer_icp_url: string
+  footer_psb_number: string
+  footer_psb_url: string
   hide_ccs_import_button: boolean
   payment_enabled: boolean
   risk_control_enabled: boolean

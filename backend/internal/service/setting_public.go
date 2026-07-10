@@ -178,6 +178,10 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyContactInfo,
 		SettingKeyDocURL,
 		SettingKeyHomeContent,
+		SettingKeyFooterIcpNumber,
+		SettingKeyFooterIcpURL,
+		SettingKeyFooterPsbNumber,
+		SettingKeyFooterPsbURL,
 		SettingKeyHideCcsImportButton,
 		SettingKeyPurchaseSubscriptionEnabled,
 		SettingKeyPurchaseSubscriptionURL,
@@ -303,6 +307,10 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		ContactInfo:                      settings[SettingKeyContactInfo],
 		DocURL:                           settings[SettingKeyDocURL],
 		HomeContent:                      settings[SettingKeyHomeContent],
+		FooterIcpNumber:                  settings[SettingKeyFooterIcpNumber],
+		FooterIcpURL:                     settings[SettingKeyFooterIcpURL],
+		FooterPsbNumber:                  settings[SettingKeyFooterPsbNumber],
+		FooterPsbURL:                     settings[SettingKeyFooterPsbURL],
 		HideCcsImportButton:              settings[SettingKeyHideCcsImportButton] == "true",
 		PurchaseSubscriptionEnabled:      settings[SettingKeyPurchaseSubscriptionEnabled] == "true",
 		PurchaseSubscriptionURL:          strings.TrimSpace(settings[SettingKeyPurchaseSubscriptionURL]),
@@ -460,6 +468,10 @@ type PublicSettingsInjectionPayload struct {
 	ContactInfo                      string                   `json:"contact_info"`
 	DocURL                           string                   `json:"doc_url"`
 	HomeContent                      string                   `json:"home_content"`
+	FooterIcpNumber                  string                   `json:"footer_icp_number"`
+	FooterIcpURL                     string                   `json:"footer_icp_url"`
+	FooterPsbNumber                  string                   `json:"footer_psb_number"`
+	FooterPsbURL                     string                   `json:"footer_psb_url"`
 	HideCcsImportButton              bool                     `json:"hide_ccs_import_button"`
 	PurchaseSubscriptionEnabled      bool                     `json:"purchase_subscription_enabled"`
 	PurchaseSubscriptionURL          string                   `json:"purchase_subscription_url"`
@@ -529,6 +541,10 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		ContactInfo:                      settings.ContactInfo,
 		DocURL:                           settings.DocURL,
 		HomeContent:                      settings.HomeContent,
+		FooterIcpNumber:                  settings.FooterIcpNumber,
+		FooterIcpURL:                     settings.FooterIcpURL,
+		FooterPsbNumber:                  settings.FooterPsbNumber,
+		FooterPsbURL:                     settings.FooterPsbURL,
 		HideCcsImportButton:              settings.HideCcsImportButton,
 		PurchaseSubscriptionEnabled:      settings.PurchaseSubscriptionEnabled,
 		PurchaseSubscriptionURL:          settings.PurchaseSubscriptionURL,
