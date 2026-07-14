@@ -214,7 +214,11 @@ func ResponsesEventToAnthropicEvents(
 	case "response.output_text.delta":
 		return resToAnthHandleTextDelta(evt, state)
 	case "response.output_text.done":
-		return resToAnthHandleBlockDone(state)
+		// Only close when the open block is text. Late/spurious .done events
+		// (e.g. Finalize after text→thinking→tool) must not close a tool_use /
+		// thinking block — that drifts indices and Claude Code errors with
+		// "Content block not found".
+		return resToAnthHandleBlockDoneIfType(state, "text")
 	case "response.function_call_arguments.delta",
 		// custom/freeform 工具的输入增量与 function_call 参数增量同形。
 		"response.custom_tool_call_input.delta":
@@ -228,7 +232,7 @@ func ResponsesEventToAnthropicEvents(
 		"response.reasoning_text.delta":
 		return resToAnthHandleReasoningDelta(evt, state)
 	case "response.reasoning_summary_text.done":
-		return resToAnthHandleBlockDone(state)
+		return resToAnthHandleBlockDoneIfType(state, "thinking")
 	// response.done 是 Realtime/WS 与项目透传路径使用的终止别名；
 	// 普通 Responses HTTP SSE 的公开终止事件仍以 response.completed 为主。
 	case "response.completed", "response.done", "response.incomplete", "response.failed":
@@ -433,8 +437,8 @@ func resToAnthHandleFuncArgsDelta(evt *ResponsesStreamEvent, state *ResponsesEve
 }
 
 func resToAnthHandleFuncArgsDone(evt *ResponsesStreamEvent, state *ResponsesEventToAnthropicState) []AnthropicStreamEvent {
-	if state.CurrentBlockType != "tool_use" {
-		return resToAnthHandleBlockDone(state)
+	if !state.ContentBlockOpen || state.CurrentBlockType != "tool_use" {
+		return nil
 	}
 
 	raw := evt.Arguments
@@ -474,6 +478,10 @@ func resToAnthHandleReasoningDelta(evt *ResponsesStreamEvent, state *ResponsesEv
 	if !ok {
 		return nil
 	}
+	// Stale mapping after the thinking block was closed (or never opened).
+	if !state.ContentBlockOpen || state.CurrentBlockType != "thinking" || state.ContentBlockIndex != blockIdx {
+		return nil
+	}
 
 	return []AnthropicStreamEvent{{
 		Type:  "content_block_delta",
@@ -492,6 +500,13 @@ func resToAnthHandleBlockDone(state *ResponsesEventToAnthropicState) []Anthropic
 	return closeCurrentBlock(state)
 }
 
+func resToAnthHandleBlockDoneIfType(state *ResponsesEventToAnthropicState, blockType string) []AnthropicStreamEvent {
+	if !state.ContentBlockOpen || state.CurrentBlockType != blockType {
+		return nil
+	}
+	return closeCurrentBlock(state)
+}
+
 func resToAnthHandleOutputItemDone(evt *ResponsesStreamEvent, state *ResponsesEventToAnthropicState) []AnthropicStreamEvent {
 	if evt.Item == nil {
 		return nil
@@ -502,10 +517,26 @@ func resToAnthHandleOutputItemDone(evt *ResponsesStreamEvent, state *ResponsesEv
 		return resToAnthHandleWebSearchDone(evt, state)
 	}
 
-	if state.ContentBlockOpen {
-		return closeCurrentBlock(state)
+	// Only close the Anthropic block when the done item matches the open block.
+	// Message output_item.done must not close an open thinking/tool_use block.
+	if !state.ContentBlockOpen {
+		return nil
 	}
-	return nil
+	switch evt.Item.Type {
+	case "message":
+		if state.CurrentBlockType != "text" {
+			return nil
+		}
+	case "reasoning":
+		if state.CurrentBlockType != "thinking" {
+			return nil
+		}
+	case "function_call", "custom_tool_call":
+		if state.CurrentBlockType != "tool_use" {
+			return nil
+		}
+	}
+	return closeCurrentBlock(state)
 }
 
 // resToAnthHandleWebSearchDone converts an OpenAI web_search_call output item
@@ -625,6 +656,7 @@ func closeCurrentBlock(state *ResponsesEventToAnthropicState) []AnthropicStreamE
 	idx := state.ContentBlockIndex
 	state.ContentBlockOpen = false
 	state.ContentBlockIndex++
+	state.CurrentBlockType = ""
 	state.CurrentToolName = ""
 	state.CurrentToolArgs = ""
 	state.CurrentToolHadDelta = false
